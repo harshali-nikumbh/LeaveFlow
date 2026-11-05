@@ -68,6 +68,11 @@ public class LeaveService {
         return leaveRepository.findByUserId(userId);
     }
 
+    @Transactional(readOnly = true)
+    public List<LeaveRequest> getAllLeavesForAdmin() {
+        return leaveRepository.findAllByOrderByCreatedAtDesc();
+    }
+
     @Transactional
     public LeaveRequest updatePendingLeave(
             Long userId,

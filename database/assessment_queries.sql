@@ -61,3 +61,5 @@ ORDER BY lr.created_at DESC;
 -- Uncomment only after confirming the request ID.
 -- DELETE FROM leave_requests
 -- WHERE id = 1 AND status = 'PENDING';
+
+SELECT * FROM users;

@@ -6,19 +6,21 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
+  withXSRFToken: true,
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
+// Obtain the CSRF cookie before every request that changes data.
+api.interceptors.request.use(async (config) => {
+  const method = (config.method || "get").toLowerCase();
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  const safeMethods = ["get", "head", "options"];
 
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  if (!safeMethods.includes(method) && !config.url?.endsWith("/auth/csrf")) {
+    await api.get("/auth/csrf");
+  }
+
+  return config;
+});
 
 export default api;

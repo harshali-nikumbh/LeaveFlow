@@ -5,10 +5,12 @@ import api from "../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,26 +27,26 @@ export default function Login() {
       const response = await api.post("/auth/login", form);
       const user = response.data;
 
-      localStorage.setItem("token", user.token);
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        })
-      );
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+
+      localStorage.setItem("user", JSON.stringify({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }));
 
       navigate(
         user.role === "ADMIN" ? "/admin" : "/dashboard",
         { replace: true }
       );
+
     } catch (err) {
       setError(
         err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Login failed. Please check your email and password."
+        err.response?.data?.message ||
+        "Login failed. Please check your email and password."
       );
     } finally {
       setLoading(false);
@@ -87,6 +89,10 @@ export default function Login() {
             autoComplete="current-password"
             required
           />
+
+          <p style={{ textAlign: "right", marginTop: "8px" }}>
+            <Link to="/forgot-password">Forgot password?</Link>
+          </p>
 
           <button className="primary-button" type="submit" disabled={loading}>
             {loading ? "Signing in..." : "Sign in"}

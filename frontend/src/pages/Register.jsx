@@ -5,11 +5,13 @@ import api from "../services/api";
 
 export default function Register() {
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
   });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -26,24 +28,23 @@ export default function Register() {
       const response = await api.post("/auth/register", form);
       const user = response.data;
 
-      // Registration returns a token in our backend.
-      localStorage.setItem("token", user.token);
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        })
-      );
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+
+      localStorage.setItem("user", JSON.stringify({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }));
 
       navigate("/dashboard", { replace: true });
+
     } catch (err) {
       setError(
         err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Registration failed. This email may already be registered."
+        err.response?.data?.message ||
+        "Registration failed. This email may already be registered."
       );
     } finally {
       setLoading(false);
@@ -98,6 +99,7 @@ export default function Register() {
             onChange={handleChange}
             autoComplete="new-password"
             minLength={8}
+            maxLength={72}
             required
           />
 

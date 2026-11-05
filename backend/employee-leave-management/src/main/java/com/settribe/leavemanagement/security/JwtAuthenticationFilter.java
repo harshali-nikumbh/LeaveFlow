@@ -2,13 +2,14 @@
 package com.settribe.leavemanagement.security;
 
 import com.settribe.leavemanagement.User;
-import com.settribe.leavemanagement.repository.UserRepository;
-import com.settribe.leavemanagement.service.JwtService;
-import io.jsonwebtoken.JwtException;
+import com.settribe.leavemanagement.service.SessionService;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,14 +22,10 @@ import java.util.List;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
-    private final UserRepository userRepository;
+    private final SessionService sessionService;
 
-    public JwtAuthenticationFilter(
-            JwtService jwtService,
-            UserRepository userRepository) {
-        this.jwtService = jwtService;
-        this.userRepository = userRepository;
+    public JwtAuthenticationFilter(SessionService sessionService) {
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -38,27 +35,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
+        String sessionToken = null;
 
-        if (header == null || !header.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("LF_SESSION".equals(cookie.getName())) {
+                    sessionToken = cookie.getValue();
+                    break;
+                }
+            }
         }
 
-        String token = header.substring(7);
+        if (sessionToken != null &&
+                SecurityContextHolder.getContext().getAuthentication() == null) {
 
-        try {
-            String email = jwtService.extractEmail(token);
-
-            if (SecurityContextHolder.getContext()
-                    .getAuthentication() == null) {
-
-                User user = userRepository.findByEmail(email)
+            try {
+                User user = sessionService.findValidUser(sessionToken)
                         .orElse(null);
 
-                if (user != null
-                        && jwtService.isTokenValid(token, email)) {
-
+                if (user != null) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             user.getEmail(),
                             null,
@@ -68,15 +65,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext()
                             .setAuthentication(authentication);
                 }
+
+            } catch (RuntimeException ex) {
+                SecurityContextHolder.clearContext();
             }
-        } catch (JwtException | IllegalArgumentException ex) {
-            SecurityContextHolder.clearContext();
-            response.setStatus(
-                    HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write(
-                    "{\"error\":\"Invalid or expired token.\"}");
-            return;
         }
 
         filterChain.doFilter(request, response);
