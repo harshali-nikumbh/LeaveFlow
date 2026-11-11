@@ -84,7 +84,7 @@ public class AuthController {
                 return ResponseCookie.from("LF_SESSION", token)
                                 .httpOnly(true)
                                 .secure(secureCookie)
-                                .sameSite("Lax")
+                                .sameSite(secureCookie ? "None" : "Lax")
                                 .path("/")
                                 .maxAge(Duration.ofHours(1))
                                 .build();
@@ -160,7 +160,7 @@ public class AuthController {
                 ResponseCookie clearCookie = ResponseCookie.from("LF_SESSION", "")
                                 .httpOnly(true)
                                 .secure(secureCookie)
-                                .sameSite("Lax")
+                                .sameSite(secureCookie ? "None" : "Lax")
                                 .path("/")
                                 .maxAge(Duration.ZERO)
                                 .build();

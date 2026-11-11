@@ -29,8 +29,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Configuration
 public class SecurityConfig {
+
+        @Value("${app.cookie.secure:false}")
+        private boolean secureCookie;
 
         private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -49,7 +54,9 @@ public class SecurityConfig {
 
                 CookieCsrfTokenRepository csrfRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
 
-                csrfRepository.setCookieCustomizer(cookie -> cookie.path("/").sameSite("Lax"));
+                csrfRepository.setCookieCustomizer(cookie -> cookie.path("/")
+                                .sameSite(secureCookie ? "None" : "Lax")
+                                .secure(secureCookie));
 
                 http
                                 .cors(cors -> {
@@ -129,5 +136,6 @@ public class SecurityConfig {
                                         ? plain.resolveCsrfTokenValue(request, csrfToken)
                                         : xor.resolveCsrfTokenValue(request, csrfToken);
                 }
+
         }
 }
