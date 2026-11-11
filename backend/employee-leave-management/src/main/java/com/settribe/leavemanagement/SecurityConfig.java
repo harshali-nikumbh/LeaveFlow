@@ -130,11 +130,7 @@ public class SecurityConfig {
                                 HttpServletRequest request,
                                 CsrfToken csrfToken) {
 
-                        String headerValue = request.getHeader(csrfToken.getHeaderName());
-
-                        return StringUtils.hasText(headerValue)
-                                        ? plain.resolveCsrfTokenValue(request, csrfToken)
-                                        : xor.resolveCsrfTokenValue(request, csrfToken);
+                        return xor.resolveCsrfTokenValue(request, csrfToken);
                 }
 
         }
