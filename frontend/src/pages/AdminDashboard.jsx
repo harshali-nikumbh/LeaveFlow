@@ -163,22 +163,22 @@ async function logout() {
 
         <section className="stats-grid">
           <div className="stat-card">
-            <span className="stat-icon">â—·</span>
+            <span className="stat-icon">◷</span>
             <p>Total requests</p>
             <strong>{leaves.length}</strong>
           </div>
           <div className="stat-card">
-            <span className="stat-icon pending-icon">â—Œ</span>
+            <span className="stat-icon pending-icon">◷</span>
             <p>Pending</p>
             <strong>{pendingCount}</strong>
           </div>
           <div className="stat-card">
-            <span className="stat-icon approved-icon">âœ“</span>
+            <span className="stat-icon approved-icon">✓</span>
             <p>Approved</p>
             <strong>{approvedCount}</strong>
           </div>
           <div className="stat-card">
-            <span className="stat-icon rejected-icon">Ã—</span>
+            <span className="stat-icon rejected-icon">×</span>
             <p>Rejected</p>
             <strong>{rejectedCount}</strong>
           </div>
@@ -231,7 +231,7 @@ async function logout() {
             <p className="empty-state">Loading leave requests...</p>
           ) : filteredLeaves.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-state-icon">â–¤</div>
+              <div className="empty-state-icon">▤</div>
               <strong>No matching requests</strong>
               <p>Try changing the filters or refresh the list.</p>
             </div>
@@ -266,7 +266,7 @@ async function logout() {
                   )
                 }
               >
-                {expandedLeaveId === leave.id ? "âˆ’" : "+"}
+                {expandedLeaveId === leave.id ? "−" : "+"}
               </button>
             </td>
 
@@ -338,13 +338,13 @@ async function logout() {
       </main>
 
       <footer className="dashboard-footer">
-  LeaveFlow Â· Administrator Portal
+  LeaveFlow · Administrator Portal
 </footer>
 
 {showLogoutConfirm && (
   <div className="logout-modal-overlay">
     <div className="logout-modal">
-      <div className="logout-modal-icon">â†—</div>
+      <div className="logout-modal-icon">↪</div>
 
       <h2>Sign out?</h2>
 
